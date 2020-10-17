@@ -34,26 +34,14 @@ namespace DependencyTree
 
         public string VersionString()
         {
-            if (requiredVersion is not null)
+            return this switch
             {
-                return requiredVersion.ToString();
-            }
-            else if (minimumVersion is not null and maximumVersion is null)
-            {
-                return $">={minimumVersion}";
-            }
-            else if (minimumVersion is null and maximumVersion is not null)
-            {
-                return $"<={maximumVersion}";
-            }
-            else if (minimumVersion is not null and maximumVersion is not null)
-            {
-                return $"{minimumVersion}-{maximumVersion}";
-            }
-            else
-            {
-                return "*";
-            }
+                {requiredVersion: not null}                             => requiredVersion.ToString(),
+                {minimumVersion: not null, maximumVersion: not null}    => $"{minimumVersion}-{maximumVersion}",
+                {maximumVersion: not null}                              => $"<={maximumVersion}",
+                {minimumVersion: not null}                              => $">={minimumVersion}",
+                _                                                       => "*"
+            };
         }
 
         public override string ToString()
