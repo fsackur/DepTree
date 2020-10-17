@@ -13,9 +13,8 @@
 
     RootModule           = 'DependencyTree.psm1'
 
-    FunctionsToExport    = @(
-        '*'
-    )
+    FunctionsToExport    = @()
+    CmdletsToExport      = @()
 
     PrivateData          = @{
         PSData = @{
@@ -27,7 +26,12 @@
                 'Require',
                 'Required',
                 'RequiredModule',
-                'RequiredModules'
+                'RequiredModules',
+                'PSEdition_Core',
+                'PSEdition_Desktop',
+                'Windows'
+                # 'Linux',      # When I have the tests set up
+                # 'macOS'
             )
         }
     }
