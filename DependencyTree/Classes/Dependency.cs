@@ -32,6 +32,30 @@ namespace DependencyTree
 
         private object satisfiedBy;
 
+        public string VersionString()
+        {
+            if (requiredVersion is not null)
+            {
+                return requiredVersion.ToString();
+            }
+            else if (minimumVersion is not null and maximumVersion is null)
+            {
+                return $">={minimumVersion}";
+            }
+            else if (minimumVersion is null and maximumVersion is not null)
+            {
+                return $"<={maximumVersion}";
+            }
+            else if (minimumVersion is not null and maximumVersion is not null)
+            {
+                return $"{minimumVersion}-{maximumVersion}";
+            }
+            else
+            {
+                return "*";
+            }
+        }
+
         public override string ToString()
         {
             return name;
