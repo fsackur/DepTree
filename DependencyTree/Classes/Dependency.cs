@@ -4,14 +4,11 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Dependency>, IComparable, ISatisfiable<Dependency>
+    public class Dependency : IComparable<Dependency>, IComparable
     {
         private Dependency? requiredBy;
         private IList<Dependency> requires;
         private string name;
-
-        private Version? resolvedVersion;   // Version of the discovered object that satisfies the requirement
-        private object? satisfiedBy;        // the discovered object that satisfies the dependency
         private VersionConstraint versionConstraint;
 
 
@@ -23,22 +20,13 @@ namespace DependencyTree
         }
 
 
-        public bool IsSatisfiedBy(Dependency other)
-        {
-            if (other is null) throw new ArgumentNullException(nameof(other));
-
-            if (name != other.name) return false;
-
-            return versionConstraint.IsSatisfiedBy(other.resolvedVersion);
-        }
-
-
         public int CompareTo(Dependency other)
         {
             if (other is null) { throw new ArgumentNullException(nameof(other)); }
 
             return this.ToString().CompareTo(other.ToString());
         }
+
 
         public int CompareTo(object other)
         {
@@ -48,14 +36,6 @@ namespace DependencyTree
                 null => throw new ArgumentNullException(nameof(other)),
                 _ => throw new ArgumentException($"Cannot compare object of type {other.GetType()}", nameof(other))
             };
-        }
-
-        public Dependency? RequiredBy { get; set; }
-
-        public void AddRequirement(Dependency subdep)
-        {
-            subdep.RequiredBy = this;
-            requires.Add(subdep);
         }
 
 
