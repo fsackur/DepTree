@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Version>, IComparable
+    public class Dependency : IComparable<Dependency>, IComparable<Version>, IComparable
     {
         public Dependency(string name)
         {
@@ -39,6 +39,29 @@ namespace DependencyTree
 
         private object? satisfiedBy;
 
+        public int CompareTo(Dependency other)
+        {
+            if (other is null) { throw new ArgumentNullException(nameof(other)); }
+
+            // not sure it makes sense to compare dependencies like this
+            // implementing now while I'm thinking about IComparable, may delete later
+            // if max and min of one fit inside max and min of the other, I'm calling it a 0
+            // in reality there may be some undefined behaviour in there
+            // should be transitive, right?
+            return other switch
+            {
+                { requiredVersion: not null } => this.CompareTo(other.requiredVersion),
+                { minimumVersion: not null, maximumVersion: not null } => (
+                    Math.Max(0, CompareTo(other.maximumVersion)) +      // -1 or 0
+                    Math.Min(0, CompareTo(other.minimumVersion))        // 0 or 1
+                ),
+                { maximumVersion: not null } => Math.Max(0, this.CompareTo(other.maximumVersion)),  // -1 or 0
+                { minimumVersion: not null } => Math.Min(0, this.CompareTo(other.minimumVersion)),  // 0 or 1
+                null => throw new ArgumentNullException(nameof(other)),
+                _ => 0
+            };
+        }
+
         public int CompareTo(Version other)
         {
             if (other is null) { throw new ArgumentNullException(nameof(other)); }
@@ -64,6 +87,7 @@ namespace DependencyTree
         {
             return other switch
             {
+                Dependency => CompareTo((Dependency)other),
                 Version => CompareTo((Version)other),
                 null => throw new ArgumentNullException(nameof(other)),
                 _ => throw new ArgumentException($"Cannot compare object of type {other.GetType()}", nameof(other))
