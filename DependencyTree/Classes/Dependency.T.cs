@@ -4,19 +4,33 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency<T> : Dependency
+    public class Dependency<T> : Dependency, ISatisfiable<Dependency>
     {
         public T? ResolvedBy;
         public override bool IsResolved { get => ResolvedBy != null; }
+        public override Version? ResolvedVersion { get; protected set; }
 
 
         public Dependency(string name, VersionConstraint versionConstraint) : base(name, versionConstraint) { }
 
 
-        public void ResolveWith(T dependencyObject)
+        public bool IsSatisfiedBy(Dependency other)
+        {
+            if (other is null) throw new ArgumentNullException(nameof(other));
+
+            return (
+                Name == other.Name &&
+                GetType() == other.GetType() &&
+                VersionConstraint.IsSatisfiedBy(other.ResolvedVersion)
+            );
+        }
+
+
+        public void ResolveWith(T dependencyObject, Version? version = null)
         {
             if (dependencyObject is null) throw new ArgumentNullException(nameof(dependencyObject));
 
+            ResolvedVersion = version;
             ResolvedBy = dependencyObject;
         }
 

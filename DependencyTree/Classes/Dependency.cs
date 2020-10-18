@@ -10,7 +10,9 @@ namespace DependencyTree
         public IList<Dependency> Requires { get; init; }
         public string Name { get; init; }
         public VersionConstraint VersionConstraint { get; init; }
+
         public virtual bool IsResolved { get => false; }
+        public virtual Version? ResolvedVersion { get; protected set; }
 
 
         public Dependency(string name, VersionConstraint versionConstraint)
