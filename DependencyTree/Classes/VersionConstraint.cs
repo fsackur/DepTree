@@ -11,7 +11,7 @@ namespace System.Runtime.CompilerServices
 
 namespace DependencyTree
 {
-    public record VersionConstraint
+    public record VersionConstraint : ISatisfiable<Version>
     {
         private Version? minimumVersion;
         private Version? maximumVersion;
@@ -60,6 +60,21 @@ namespace DependencyTree
                 this.minimumVersion = minimumVersion;
                 this.maximumVersion = maximumVersion;
             }
+        }
+
+
+        public bool IsSatisfiedBy(Version other)
+        {
+            if (other is null) { throw new ArgumentNullException(nameof(other)); }
+
+            return this switch
+            {
+                { requiredVersion: not null } => requiredVersion == other,
+                { minimumVersion: not null, maximumVersion: not null } => minimumVersion <= other && maximumVersion >= other,
+                { maximumVersion: not null } => maximumVersion >= other,
+                { minimumVersion: not null } => minimumVersion <= other,
+                _ => true
+            };
         }
 
 
