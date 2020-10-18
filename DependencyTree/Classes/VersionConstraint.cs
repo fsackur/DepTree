@@ -73,22 +73,21 @@ namespace DependencyTree
                 throw new ArgumentException($"Cannot have strict and range version constraints.");
             }
 
-            if (minimumVersion is null || maximumVersion is null) return;
-
-            if (minimumVersion > maximumVersion)
+            if (minimumVersion is not null && maximumVersion is not null && minimumVersion > maximumVersion)
             {
                 throw new ArgumentException($"{nameof(minimumVersion)} cannot be greater than {nameof(maximumVersion)}.");
             }
 
-            if (minimumVersion == maximumVersion)
+            if (minimumVersion is not null && minimumVersion == maximumVersion)
             {
-                if (minIsExclusive || maxIsExclusive)
-                {
-                    throw new ArgumentException($"Cannot have exclusive version constraints when {nameof(minimumVersion)} is equal to {nameof(maximumVersion)}.");
-                }
                 requiredVersion = minimumVersion;
                 minimumVersion = null;
                 maximumVersion = null;
+            }
+
+            if (requiredVersion is not null && (minIsExclusive || maxIsExclusive))
+            {
+                throw new ArgumentException($"Cannot have exclusive version constraints with strict version constraint.");
             }
         }
 
