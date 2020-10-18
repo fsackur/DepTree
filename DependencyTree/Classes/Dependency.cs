@@ -6,38 +6,22 @@ namespace DependencyTree
 {
     public class Dependency : IComparable<Dependency>, IComparable, ISatisfiable<Dependency>, ISatisfiable
     {
-        public Dependency(string name)
-        {
-            this.name = name;
-            this.requires = new List<Dependency>();
-        }
-
-        public Dependency(string name, Version requiredVersion) : this(name) => this.requiredVersion = requiredVersion;
-
-        public Dependency(string name, Version? minimumVersion, Version? maximumVersion) : this(name)
-        {
-            if (minimumVersion == maximumVersion)
-            {
-                this.requiredVersion = minimumVersion;
-            }
-            else
-            {
-                this.minimumVersion = minimumVersion;
-                this.maximumVersion = maximumVersion;
-            }
-        }
-
         private Dependency? requiredBy;
         private IList<Dependency> requires;
         private string name;
 
-        private Version? resolvedVersion;    // Version of the discovered object that satisfies the requirement
-        private Version? minimumVersion;
-        private Version? maximumVersion;
-        private Version? requiredVersion;
+        private Version? resolvedVersion;   // Version of the discovered object that satisfies the requirement
+        private object? satisfiedBy;        // the discovered object that satisfies the dependency
+        private VersionConstraint versionConstraint;
 
 
-        private object? satisfiedBy;
+        public Dependency(string name, VersionConstraint versionConstraint)
+        {
+            this.name = name;
+            this.requires = new List<Dependency>();
+            this.versionConstraint = versionConstraint;
+        }
+
 
         public bool IsSatisfiedBy(Dependency other)
         {
@@ -46,31 +30,18 @@ namespace DependencyTree
             return other switch
             {
                 { resolvedVersion: not null } => IsSatisfiedBy(other.resolvedVersion),
-                { resolvedVersion: null } => minimumVersion is null && maximumVersion is null && requiredVersion is null,
+                { resolvedVersion: null } => versionConstraint.MinimumVersion is null && versionConstraint.MaximumVersion is null && versionConstraint.RequiredVersion is null,
                 null => throw new ArgumentNullException(nameof(other)),
             };
         }
 
-        public bool IsSatisfiedBy(Version other)
-        {
-            if (other is null) { throw new ArgumentNullException(nameof(other)); }
-
-            return this switch
-            {
-                { requiredVersion: not null } => requiredVersion == other,
-                { minimumVersion: not null, maximumVersion: not null } => minimumVersion <= other && maximumVersion >= other,
-                { maximumVersion: not null } => maximumVersion >= other,
-                { minimumVersion: not null } => minimumVersion <= other,
-                _ => true
-            };
-        }
 
         public bool IsSatisfiedBy(object other)
         {
             return other switch
             {
                 Dependency => IsSatisfiedBy((Dependency)other),
-                Version => IsSatisfiedBy((Version)other),
+                Version => versionConstraint.IsSatisfiedBy((Version)other),
                 null => throw new ArgumentNullException(nameof(other)),
                 _ => throw new ArgumentException($"Cannot satisfy a dependency with object of type {other.GetType()}", nameof(other))
             };
@@ -102,19 +73,6 @@ namespace DependencyTree
         }
 
 
-        public string VersionString() =>
-            this switch
-            {
-                { requiredVersion: not null } => requiredVersion.ToString(),
-                { minimumVersion: not null, maximumVersion: not null } => $">={minimumVersion} <={maximumVersion}",
-                { maximumVersion: not null } => $"<={maximumVersion}",
-                { minimumVersion: not null } => $">={minimumVersion}",
-                _ => "*"
-            };
-
-        public override string ToString()
-        {
-            return $"{name} {VersionString()}";
-        }
+        public override string ToString() => $"{name} {versionConstraint}";
     }
 }
