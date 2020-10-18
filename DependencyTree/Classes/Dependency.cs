@@ -11,7 +11,9 @@ namespace DependencyTree
             this.name = name;
             this.requires = new List<Dependency>();
         }
+
         public Dependency(string name, Version requiredVersion) : this(name) => this.requiredVersion = requiredVersion;
+
         public Dependency(string name, Version? minimumVersion, Version? maximumVersion) : this(name)
         {
             if (minimumVersion == maximumVersion)
@@ -48,7 +50,7 @@ namespace DependencyTree
 
         public override string ToString()
         {
-            return name;
+            return $"{name} {VersionString()}";
         }
     }
 }
