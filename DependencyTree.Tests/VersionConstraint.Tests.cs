@@ -13,12 +13,43 @@ namespace DependencyTree.Tests
         [Fact]
         public void TestInitializers()
         {
-            var vc = new VersionConstraint
+            VersionConstraint vc;
+
+            vc = new VersionConstraint
             {
                 RequiredVersion = middleVersion
             };
             Assert.Null(vc.MinimumVersion);
             Assert.Equal(vc.RequiredVersion, middleVersion);
+            Assert.Null(vc.MaximumVersion);
+
+
+            vc = new VersionConstraint
+            {
+                MinimumVersion = lowVersion,
+                MaximumVersion = highVersion
+            };
+            Assert.Equal(vc.MinimumVersion, lowVersion);
+            Assert.Null(vc.RequiredVersion);
+            Assert.Equal(vc.MaximumVersion, highVersion);
+
+
+            vc = new VersionConstraint
+            {
+                MinimumVersion = middleVersion,
+                MaximumVersion = middleVersion
+            };
+            Assert.Null(vc.MinimumVersion);
+            Assert.Equal(vc.RequiredVersion, middleVersion);
+            Assert.Null(vc.MaximumVersion);
+
+
+            Assert.Throws<ArgumentException>(() => new VersionConstraint
+            {
+                MinimumVersion = middleVersion,
+                MaximumVersion = middleVersion,
+                MaximumVersionIsExclusive = true
+            });
         }
     }
 }
