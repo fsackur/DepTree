@@ -36,7 +36,17 @@ namespace DependencyTree
         private Version? maximumVersion;
         private Version? requiredVersion;
 
+
         private object? satisfiedBy;
+
+        public Dependency? RequiredBy { get; set; }
+
+        public void AddRequirement(Dependency subdep)
+        {
+            subdep.RequiredBy = this;
+            requires.Add(subdep);
+        }
+
 
         public string VersionString() =>
             this switch
