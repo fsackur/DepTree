@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Dependency>, IComparable
+    public class Dependency : IComparable<Dependency>, IComparable, ISatisfiable<Dependency>, ISatisfiable
     {
         public Dependency(string name)
         {
@@ -38,6 +38,43 @@ namespace DependencyTree
 
 
         private object? satisfiedBy;
+
+        public bool IsSatisfiedBy(Dependency other)
+        {
+            if (name != other.name) return false;
+
+            return other switch
+            {
+                { resolvedVersion: not null } => IsSatisfiedBy(other.resolvedVersion),
+                { resolvedVersion: null } => minimumVersion is null && maximumVersion is null && requiredVersion is null,
+                null => throw new ArgumentNullException(nameof(other)),
+            };
+        }
+
+        public bool IsSatisfiedBy(Version other)
+        {
+            if (other is null) { throw new ArgumentNullException(nameof(other)); }
+
+            return this switch
+            {
+                { requiredVersion: not null } => requiredVersion == other,
+                { minimumVersion: not null, maximumVersion: not null } => minimumVersion <= other && maximumVersion >= other,
+                { maximumVersion: not null } => maximumVersion >= other,
+                { minimumVersion: not null } => minimumVersion <= other,
+                _ => true
+            };
+        }
+
+        public bool IsSatisfiedBy(object other)
+        {
+            return other switch
+            {
+                Dependency => IsSatisfiedBy((Dependency)other),
+                Version => IsSatisfiedBy((Version)other),
+                null => throw new ArgumentNullException(nameof(other)),
+                _ => throw new ArgumentException($"Cannot satisfy a dependency with object of type {other.GetType()}", nameof(other))
+            };
+        }
 
         public int CompareTo(Dependency other)
         {
