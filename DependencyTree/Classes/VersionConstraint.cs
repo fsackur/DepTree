@@ -68,10 +68,12 @@ namespace DependencyTree
 
         private void normalise()
         {
-            if (minimumVersion is null || maximumVersion is null)
+            if ((minimumVersion is not null || maximumVersion is not null) && requiredVersion is not null)
             {
-                if (requiredVersion is not null) throw new ArgumentException($"Cannot have strict and range version constraints.");
+                throw new ArgumentException($"Cannot have strict and range version constraints.");
             }
+
+            if (minimumVersion is null || maximumVersion is null) return;
 
             if (minimumVersion > maximumVersion)
             {
