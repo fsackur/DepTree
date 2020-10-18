@@ -16,21 +16,22 @@ namespace DependencyTree
         private Version? minimumVersion;
         private Version? maximumVersion;
         private Version? requiredVersion;
-        private bool minimumVersionIsExclusive = false;
-        private bool maximumVersionIsExclusive = false;
+        private bool minIsExclusive = false;
+        private bool maxIsExclusive = false;
 
         public VersionConstraint() { }
 
         public VersionConstraint(Version requiredVersion) => this.requiredVersion = requiredVersion;
 
-        public VersionConstraint(Version? minimumVersion, Version? maximumVersion, bool minimumVersionIsExclusive = false, bool maximumVersionIsExclusive = false)
+        public VersionConstraint(Version? minimumVersion, Version? maximumVersion, bool minIsExclusive = false, bool maxIsExclusive = false)
         {
+            this.minIsExclusive = minIsExclusive;
+            this.maxIsExclusive = maxIsExclusive;
+
             if (minimumVersion == null || maximumVersion == null)
             {
                 this.minimumVersion = minimumVersion;
                 this.maximumVersion = maximumVersion;
-                this.minimumVersionIsExclusive = minimumVersionIsExclusive;
-                this.maximumVersionIsExclusive = maximumVersionIsExclusive;
                 return;
             }
 
@@ -41,11 +42,9 @@ namespace DependencyTree
 
             if (minimumVersion == maximumVersion)
             {
-                if (minimumVersionIsExclusive || maximumVersionIsExclusive)
+                if (minIsExclusive || maxIsExclusive)
                 {
-                    throw new ArgumentException(
-                        $"Cannot have exclusive version constraints when {nameof(minimumVersion)} is equal to {nameof(maximumVersion)}."
-                    );
+                    throw new ArgumentException($"Cannot have exclusive version constraints when {nameof(minimumVersion)} is equal to {nameof(maximumVersion)}.");
                 }
                 this.requiredVersion = minimumVersion;
             }
@@ -54,15 +53,13 @@ namespace DependencyTree
                 this.minimumVersion = minimumVersion;
                 this.maximumVersion = maximumVersion;
             }
-
-            this.minimumVersionIsExclusive = minimumVersionIsExclusive;
-            this.maximumVersionIsExclusive = maximumVersionIsExclusive;
         }
+
 
         public Version? MinimumVersion { get => minimumVersion; }
         public Version? MaximumVersion { get => maximumVersion; }
         public Version? RequiredVersion { get => requiredVersion; }
-        public bool MinimumVersionIsExclusive { get => minimumVersionIsExclusive; }
-        public bool MaximumVersionIsExclusive { get => maximumVersionIsExclusive; }
+        public bool MinimumVersionIsExclusive { get => minIsExclusive; }
+        public bool MaximumVersionIsExclusive { get => maxIsExclusive; }
     }
 }
