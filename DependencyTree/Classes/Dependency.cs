@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Version>
+    public class Dependency : IComparable<Version>, IComparable
     {
         public Dependency(string name)
         {
@@ -57,6 +57,16 @@ namespace DependencyTree
                 { maximumVersion: not null } => Math.Max(0, maximumVersion.CompareTo(other)),   // -1 or 0
                 { minimumVersion: not null } => Math.Min(0, minimumVersion.CompareTo(other)),   // 0 or 1
                 _ => 0
+            };
+        }
+
+        public int CompareTo(object other)
+        {
+            return other switch
+            {
+                Version => CompareTo((Version)other),
+                null => throw new ArgumentNullException(nameof(other)),
+                _ => throw new ArgumentException($"Cannot compare object of type {other.GetType()}", nameof(other))
             };
         }
 
