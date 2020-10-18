@@ -61,5 +61,24 @@ namespace DependencyTree
         public Version? RequiredVersion { get => requiredVersion; }
         public bool MinimumVersionIsExclusive { get => minIsExclusive; }
         public bool MaximumVersionIsExclusive { get => maxIsExclusive; }
+
+
+        public override string ToString()
+        {
+            return this switch
+            {
+                { requiredVersion: not null } => versionString(requiredVersion, false),
+                { minimumVersion: not null, maximumVersion: not null } => String.Format(
+                    ">{0} <{1}",
+                    versionString(minimumVersion, minIsExclusive),
+                    versionString(maximumVersion, maxIsExclusive)
+                ),
+                { minimumVersion: not null } => $">{versionString(minimumVersion, minIsExclusive)}",
+                { maximumVersion: not null } => $"<{versionString(maximumVersion, maxIsExclusive)}",
+                _ => "*"
+            };
+
+            string versionString(Version version, bool exclusive) => exclusive ? $"{version}" : $"={version}";
+        }
     }
 }
