@@ -19,6 +19,13 @@ namespace DependencyTree
         private bool minIsExclusive = false;
         private bool maxIsExclusive = false;
 
+        public Version? MinimumVersion { get => minimumVersion; }
+        public Version? MaximumVersion { get => maximumVersion; }
+        public Version? RequiredVersion { get => requiredVersion; }
+        public bool MinimumVersionIsExclusive { get => minIsExclusive; }
+        public bool MaximumVersionIsExclusive { get => maxIsExclusive; }
+
+
         public VersionConstraint() { }
 
         public VersionConstraint(Version requiredVersion) => this.requiredVersion = requiredVersion;
@@ -56,29 +63,22 @@ namespace DependencyTree
         }
 
 
-        public Version? MinimumVersion { get => minimumVersion; }
-        public Version? MaximumVersion { get => maximumVersion; }
-        public Version? RequiredVersion { get => requiredVersion; }
-        public bool MinimumVersionIsExclusive { get => minIsExclusive; }
-        public bool MaximumVersionIsExclusive { get => maxIsExclusive; }
-
-
         public override string ToString()
         {
+            string verString(Version version, bool withEquals) => withEquals ? $"={version}" : $"{version}";
+
             return this switch
             {
-                { requiredVersion: not null } => versionString(requiredVersion, false),
+                { requiredVersion: not null } => verString(requiredVersion, true),
                 { minimumVersion: not null, maximumVersion: not null } => String.Format(
                     ">{0} <{1}",
-                    versionString(minimumVersion, minIsExclusive),
-                    versionString(maximumVersion, maxIsExclusive)
+                    verString(minimumVersion, !minIsExclusive),
+                    verString(maximumVersion, !maxIsExclusive)
                 ),
-                { minimumVersion: not null } => $">{versionString(minimumVersion, minIsExclusive)}",
-                { maximumVersion: not null } => $"<{versionString(maximumVersion, maxIsExclusive)}",
+                { minimumVersion: not null } => $">{verString(minimumVersion, !minIsExclusive)}",
+                { maximumVersion: not null } => $"<{verString(maximumVersion, !maxIsExclusive)}",
                 _ => "*"
             };
-
-            string versionString(Version version, bool exclusive) => exclusive ? $"{version}" : $"={version}";
         }
     }
 }
