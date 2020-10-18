@@ -7,7 +7,7 @@ namespace DependencyTree
     public class Dependency<T> : Dependency
     {
         public T? ResolvedBy;
-        public bool IsResolved { get => ResolvedBy != null; }
+        public override bool IsResolved { get => ResolvedBy != null; }
 
 
         public Dependency(string name, VersionConstraint versionConstraint) : base(name, versionConstraint) { }

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Dependency>, IComparable
+    abstract public class Dependency : IComparable<Dependency>, IComparable
     {
         public Dependency? RequiredBy { get; init; }
         public IList<Dependency> Requires { get; init; }
         public string Name { get; init; }
         public VersionConstraint VersionConstraint { get; init; }
+        public virtual bool IsResolved { get => false; }
 
 
         public Dependency(string name, VersionConstraint versionConstraint)
