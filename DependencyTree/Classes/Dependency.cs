@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DependencyTree
 {
-    public class Dependency : IComparable<Dependency>, IComparable<Version>, IComparable
+    public class Dependency : IComparable<Dependency>, IComparable
     {
         public Dependency(string name)
         {
@@ -43,44 +43,7 @@ namespace DependencyTree
         {
             if (other is null) { throw new ArgumentNullException(nameof(other)); }
 
-            // not sure it makes sense to compare dependencies like this
-            // implementing now while I'm thinking about IComparable, may delete later
-            // if max and min of one fit inside max and min of the other, I'm calling it a 0
-            // in reality there may be some undefined behaviour in there
-            // should be transitive, right?
-            return other switch
-            {
-                { requiredVersion: not null } => this.CompareTo(other.requiredVersion),
-                { minimumVersion: not null, maximumVersion: not null } => (
-                    Math.Max(0, CompareTo(other.maximumVersion)) +      // -1 or 0
-                    Math.Min(0, CompareTo(other.minimumVersion))        // 0 or 1
-                ),
-                { maximumVersion: not null } => Math.Max(0, this.CompareTo(other.maximumVersion)),  // -1 or 0
-                { minimumVersion: not null } => Math.Min(0, this.CompareTo(other.minimumVersion)),  // 0 or 1
-                null => throw new ArgumentNullException(nameof(other)),
-                _ => 0
-            };
-        }
-
-        public int CompareTo(Version other)
-        {
-            if (other is null) { throw new ArgumentNullException(nameof(other)); }
-
-            // other is higher than this => -1
-            // other is lower => 1
-            // this's version reqs are satisfied => 0
-            // this has no version attached => 0
-            return this switch
-            {
-                { requiredVersion: not null } => requiredVersion.CompareTo(other),
-                { minimumVersion: not null, maximumVersion: not null } => (
-                    Math.Max(0, maximumVersion.CompareTo(other)) +      // -1 or 0
-                    Math.Min(0, minimumVersion.CompareTo(other))        // 0 or 1
-                ),
-                { maximumVersion: not null } => Math.Max(0, maximumVersion.CompareTo(other)),   // -1 or 0
-                { minimumVersion: not null } => Math.Min(0, minimumVersion.CompareTo(other)),   // 0 or 1
-                _ => 0
-            };
+            return this.ToString().CompareTo(other.ToString());
         }
 
         public int CompareTo(object other)
@@ -88,7 +51,6 @@ namespace DependencyTree
             return other switch
             {
                 Dependency => CompareTo((Dependency)other),
-                Version => CompareTo((Version)other),
                 null => throw new ArgumentNullException(nameof(other)),
                 _ => throw new ArgumentException($"Cannot compare object of type {other.GetType()}", nameof(other))
             };
@@ -107,7 +69,7 @@ namespace DependencyTree
             this switch
             {
                 { requiredVersion: not null } => requiredVersion.ToString(),
-                { minimumVersion: not null, maximumVersion: not null } => $"{minimumVersion}-{maximumVersion}",
+                { minimumVersion: not null, maximumVersion: not null } => $">={minimumVersion} <={maximumVersion}",
                 { maximumVersion: not null } => $"<={maximumVersion}",
                 { minimumVersion: not null } => $">={minimumVersion}",
                 _ => "*"
