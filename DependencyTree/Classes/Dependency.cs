@@ -25,14 +25,11 @@ namespace DependencyTree
 
         public bool IsSatisfiedBy(Dependency other)
         {
+            if (other is null) throw new ArgumentNullException(nameof(other));
+
             if (name != other.name) return false;
 
-            return other switch
-            {
-                { resolvedVersion: not null } => IsSatisfiedBy(other.resolvedVersion),
-                { resolvedVersion: null } => versionConstraint.MinimumVersion is null && versionConstraint.MaximumVersion is null && versionConstraint.RequiredVersion is null,
-                null => throw new ArgumentNullException(nameof(other)),
-            };
+            return versionConstraint.IsSatisfiedBy(other.resolvedVersion);
         }
 
 
