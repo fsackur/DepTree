@@ -63,9 +63,13 @@ namespace DependencyTree
         }
 
 
-        public bool IsSatisfiedBy(Version other)
+        public bool IsSatisfiedBy(Version? other)
         {
-            if (other is null) { throw new ArgumentNullException(nameof(other)); }
+            if (other is null) return this switch
+            {
+                { requiredVersion: null, minimumVersion: null, maximumVersion: null } => true,
+                _ => false
+            };
 
             return this switch
             {
