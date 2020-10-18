@@ -6,17 +6,17 @@ namespace DependencyTree
 {
     public class Dependency : IComparable<Dependency>, IComparable
     {
-        private Dependency? requiredBy;
-        private IList<Dependency> requires;
-        private string name;
-        private VersionConstraint versionConstraint;
+        public Dependency? RequiredBy { get; init; }
+        public IList<Dependency> Requires { get; init; }
+        public string Name { get; init; }
+        public VersionConstraint VersionConstraint { get; init; }
 
 
         public Dependency(string name, VersionConstraint versionConstraint)
         {
-            this.name = name;
-            this.requires = new List<Dependency>();
-            this.versionConstraint = versionConstraint;
+            this.Name = name;
+            this.Requires = new List<Dependency>();
+            this.VersionConstraint = versionConstraint;
         }
 
 
@@ -39,6 +39,6 @@ namespace DependencyTree
         }
 
 
-        public override string ToString() => $"{name} {versionConstraint}";
+        public override string ToString() => $"{Name} {VersionConstraint}";
     }
 }
