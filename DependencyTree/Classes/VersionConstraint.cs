@@ -117,7 +117,11 @@ namespace DependencyTree
             return this switch
             {
                 { requiredVersion: not null } => requiredVersion == other,
-                { minimumVersion: not null, maximumVersion: not null } => minimumVersion <= other && maximumVersion >= other,
+                { minimumVersion: not null, maximumVersion: not null } => (
+                    minimumVersion < other && maximumVersion > other ||
+                    !minIsExclusive && minimumVersion == other ||
+                    !maxIsExclusive && maximumVersion == other
+                ),
                 { maximumVersion: not null } => maximumVersion >= other,
                 { minimumVersion: not null } => minimumVersion <= other,
                 _ => true
